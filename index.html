@@ -531,15 +531,7 @@
     <script>
         // Database simulation using localStorage
         const DB = {
-            users: (() => {
-                try {
-                    const stored = localStorage.getItem('zivi_users');
-                    return stored ? JSON.parse(stored) : [];
-                } catch (e) {
-                    console.error('Error loading users:', e);
-                    return [];
-                }
-            })(),
+            users: JSON.parse(localStorage.getItem('dzidzi_users')) || [],
             products: [
                 {
                     id: 'prod1',
@@ -586,11 +578,7 @@
             ],
             
             saveUsers: function() {
-                try {
-                    localStorage.setItem('zivi_users', JSON.stringify(this.users));
-                } catch (e) {
-                    console.error('Error saving users:', e);
-                }
+                localStorage.setItem('dzidzi_users', JSON.stringify(this.users));
             },
             
             findUser: function(username) {
@@ -625,10 +613,10 @@
                 return user ? user.purchases : [];
             }
         };
-
+        
         // App State
         let currentUser = null;
-
+        
         // DOM Elements
         const authPage = document.getElementById('authPage');
         const portalPage = document.getElementById('portalPage');
@@ -652,191 +640,164 @@
         const btcAddress = document.getElementById('btcAddress');
         const paymentAmount = document.getElementById('paymentAmount');
         const paymentStatus = document.getElementById('paymentStatus');
-
+        
         // Form inputs
         const loginUsername = document.getElementById('loginUsername');
         const loginPassword = document.getElementById('loginPassword');
         const signupUsername = document.getElementById('signupUsername');
         const signupPassword = document.getElementById('signupPassword');
         const confirmPassword = document.getElementById('confirmPassword');
-
+        
         // Error messages
         const loginUsernameError = document.getElementById('loginUsernameError');
         const loginPasswordError = document.getElementById('loginPasswordError');
         const signupUsernameError = document.getElementById('signupUsernameError');
         const signupPasswordError = document.getElementById('signupPasswordError');
         const confirmPasswordError = document.getElementById('confirmPasswordError');
-
+        
         // Current product being purchased
         let currentProduct = null;
-
+        
         // Initialize the app
         function init() {
-            // Verify critical DOM elements
-            if (!authPage || !portalPage || !loginForm || !signupForm) {
-                console.error('Critical DOM elements missing');
-                return;
-            }
-
             // Check if user is already logged in
-            try {
-                const storedUser = localStorage.getItem('zivi_currentUser');
-                if (storedUser) {
-                    currentUser = JSON.parse(storedUser);
-                    showPortal();
-                } else {
-                    showLoginForm();
-                }
-            } catch (e) {
-                console.error('Error loading current user:', e);
-                showLoginForm();
+            const storedUser = localStorage.getItem('dzidzi_currentUser');
+            if (storedUser) {
+                currentUser = JSON.parse(storedUser);
+                showPortal();
+            } else {
+                showAuthPage();
             }
-
-            // Event listeners
-            if (showLogin) {
-                showLogin.addEventListener('click', showLoginForm);
-            }
-            if (showSignup) {
-                showSignup.addEventListener('click', showSignupForm);
-            }
-            if (switchToLogin) {
-                switchToLogin.addEventListener('click', showLoginForm);
-            }
-            if (switchToSignup) {
-                switchToSignup.addEventListener('click', showSignupForm);
-            }
-            if (loginBtn) {
-                loginBtn.addEventListener('click', handleLogin);
-            }
-            if (signupBtn) {
-                signupBtn.addEventListener('click', handleSignup);
-            }
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', handleLogout);
-            }
-            if (closeModal) {
-                closeModal.addEventListener('click', () => {
-                    if (paymentModal) paymentModal.style.display = 'none';
-                });
-            }
-            if (confirmPayment) {
-                confirmPayment.addEventListener('click', completePayment);
-            }
-
-            // Close modal when clicking outside
-            if (paymentModal) {
-                window.addEventListener('click', (e) => {
-                    if (e.target === paymentModal) {
-                        paymentModal.style.display = 'none';
-                    }
-                });
-            }
+            
+            // Set up event listeners
+            setupEventListeners();
         }
-
+        
+        function setupEventListeners() {
+            // Auth page navigation
+            showLogin.addEventListener('click', showAuthPage);
+            showSignup.addEventListener('click', showAuthPage);
+            
+            // Form switching
+            switchToLogin.addEventListener('click', () => {
+                showLoginForm();
+            });
+            
+            switchToSignup.addEventListener('click', () => {
+                showSignupForm();
+            });
+            
+            // Form submissions
+            loginBtn.addEventListener('click', handleLogin);
+            signupBtn.addEventListener('click', handleSignup);
+            
+            // Logout
+            logoutBtn.addEventListener('click', handleLogout);
+            
+            // Payment modal
+            closeModal.addEventListener('click', () => {
+                paymentModal.style.display = 'none';
+            });
+            
+            confirmPayment.addEventListener('click', completePayment);
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target === paymentModal) {
+                    paymentModal.style.display = 'none';
+                }
+            });
+        }
+        
+        // Show auth page with login form
+        function showAuthPage() {
+            authPage.classList.add('active');
+            portalPage.classList.remove('active');
+            showLoginForm();
+        }
+        
         // Show login form
         function showLoginForm() {
-            if (!loginForm || !signupForm || !authPage || !portalPage) {
-                console.error('Form elements missing');
-                return;
-            }
             loginForm.style.display = 'block';
             signupForm.style.display = 'none';
-            authPage.classList.add('active');
-            portalPage.classList.remove('active');
             clearErrors();
             clearFormInputs();
         }
-
+        
         // Show signup form
         function showSignupForm() {
-            if (!loginForm || !signupForm || !authPage || !portalPage) {
-                console.error('Form elements missing');
-                return;
-            }
             loginForm.style.display = 'none';
             signupForm.style.display = 'block';
-            authPage.classList.add('active');
-            portalPage.classList.remove('active');
             clearErrors();
             clearFormInputs();
         }
-
+        
         // Clear all form inputs
         function clearFormInputs() {
-            if (loginUsername) loginUsername.value = '';
-            if (loginPassword) loginPassword.value = '';
-            if (signupUsername) signupUsername.value = '';
-            if (signupPassword) signupPassword.value = '';
-            if (confirmPassword) confirmPassword.value = '';
+            loginUsername.value = '';
+            loginPassword.value = '';
+            signupUsername.value = '';
+            signupPassword.value = '';
+            confirmPassword.value = '';
         }
-
+        
         // Clear all error messages
         function clearErrors() {
-            if (loginUsernameError) loginUsernameError.textContent = '';
-            if (loginPasswordError) loginPasswordError.textContent = '';
-            if (signupUsernameError) signupUsernameError.textContent = '';
-            if (signupPasswordError) signupPasswordError.textContent = '';
-            if (confirmPasswordError) confirmPasswordError.textContent = '';
+            loginUsernameError.textContent = '';
+            loginPasswordError.textContent = '';
+            signupUsernameError.textContent = '';
+            signupPasswordError.textContent = '';
+            confirmPasswordError.textContent = '';
         }
-
+        
         // Handle login
         function handleLogin() {
-            if (!loginUsername || !loginPassword || !loginUsernameError || !loginPasswordError) {
-                console.error('Login form elements missing');
-                return;
-            }
             clearErrors();
-
+            
             const username = loginUsername.value.trim();
             const password = loginPassword.value.trim();
-
+            
             let isValid = true;
+            
             if (!username) {
                 loginUsernameError.textContent = 'Username is required';
                 isValid = false;
             }
+            
             if (!password) {
                 loginPasswordError.textContent = 'Password is required';
                 isValid = false;
             }
+            
             if (!isValid) return;
-
+            
             const user = DB.findUser(username);
+            
             if (!user) {
                 loginUsernameError.textContent = 'User not found';
                 return;
             }
-
+            
             if (user.password !== password) {
                 loginPasswordError.textContent = 'Incorrect password';
                 return;
             }
-
-            try {
-                currentUser = user;
-                localStorage.setItem('zivi_currentUser', JSON.stringify(user));
-                showPortal();
-            } catch (e) {
-                console.error('Error during login:', e);
-                loginUsernameError.textContent = 'An error occurred. Please try again.';
-            }
+            
+            currentUser = user;
+            localStorage.setItem('dzidzi_currentUser', JSON.stringify(user));
+            showPortal();
         }
-
+        
         // Handle signup
         function handleSignup() {
-            if (!signupUsername || !signupPassword || !confirmPassword || 
-                !signupUsernameError || !signupPasswordError || !confirmPasswordError) {
-                console.error('Signup form elements missing');
-                return;
-            }
             clearErrors();
-
+            
             const username = signupUsername.value.trim();
             const password = signupPassword.value.trim();
             const confirm = confirmPassword.value.trim();
-
+            
             let isValid = true;
-
+            
             if (!username) {
                 signupUsernameError.textContent = 'Username is required';
                 isValid = false;
@@ -847,7 +808,7 @@
                 signupUsernameError.textContent = 'Username already taken';
                 isValid = false;
             }
-
+            
             if (!password) {
                 signupPasswordError.textContent = 'Password is required';
                 isValid = false;
@@ -855,7 +816,7 @@
                 signupPasswordError.textContent = 'Password must be at least 6 characters';
                 isValid = false;
             }
-
+            
             if (!confirm) {
                 confirmPasswordError.textContent = 'Please confirm your password';
                 isValid = false;
@@ -863,63 +824,44 @@
                 confirmPasswordError.textContent = 'Passwords do not match';
                 isValid = false;
             }
-
+            
             if (!isValid) return;
-
-            try {
-                const user = DB.createUser(username, password);
-                currentUser = user;
-                localStorage.setItem('zivi_currentUser', JSON.stringify(user));
-                showPortal();
-            } catch (e) {
-                console.error('Error during signup:', e);
-                signupUsernameError.textContent = 'An error occurred. Please try again.';
-            }
+            
+            const user = DB.createUser(username, password);
+            currentUser = user;
+            localStorage.setItem('dzidzi_currentUser', JSON.stringify(user));
+            showPortal();
         }
-
+        
         // Handle logout
         function handleLogout() {
             currentUser = null;
-            localStorage.removeItem('zivi_currentUser');
-            showLoginForm();
+            localStorage.removeItem('dzidzi_currentUser');
+            showAuthPage();
         }
-
+        
         // Show portal page
         function showPortal() {
-            if (!authPage || !portalPage || !welcomeMessage || !userAvatar || !userBalance) {
-                console.error('Portal elements missing');
-                return;
-            }
-            if (!currentUser) {
-                console.error('No current user');
-                showLoginForm();
-                return;
-            }
-
             authPage.classList.remove('active');
             portalPage.classList.add('active');
-
+            
             welcomeMessage.textContent = `Welcome, ${currentUser.username}`;
             userAvatar.textContent = currentUser.username.charAt(0).toUpperCase();
             userBalance.textContent = currentUser.balance.toFixed(8);
-
+            
             loadProducts();
             loadPurchaseHistory();
         }
-
+        
         // Load products
         function loadProducts() {
-            if (!productsGrid) {
-                console.error('Products grid missing');
-                return;
-            }
             productsGrid.innerHTML = '';
-
+            
             const userPurchases = DB.getUserPurchases(currentUser.username);
-
+            
             DB.products.forEach(product => {
                 const isPurchased = userPurchases.includes(product.id);
-
+                
                 const productCard = document.createElement('div');
                 productCard.className = 'product-card';
                 productCard.innerHTML = `
@@ -936,9 +878,9 @@
                             `<button class="buy-btn" style="background-color: var(--success);">Access Content</button>`}
                     </div>
                 `;
-
+                
                 productsGrid.appendChild(productCard);
-
+                
                 if (!isPurchased) {
                     productCard.querySelector('.buy-btn').addEventListener('click', () => {
                         initiatePurchase(product);
@@ -950,22 +892,18 @@
                 }
             });
         }
-
+        
         // Load purchase history
         function loadPurchaseHistory() {
-            if (!purchaseHistory) {
-                console.error('Purchase history element missing');
-                return;
-            }
             purchaseHistory.innerHTML = '';
-
+            
             const userPurchases = DB.getUserPurchases(currentUser.username);
-
+            
             if (userPurchases.length === 0) {
                 purchaseHistory.innerHTML = '<p>You have no purchases yet.</p>';
                 return;
             }
-
+            
             userPurchases.forEach(productId => {
                 const product = DB.products.find(p => p.id === productId);
                 if (product) {
@@ -981,54 +919,46 @@
                             <button class="buy-btn" style="background-color: var(--success);">Access Again</button>
                         </div>
                     `;
-
+                    
                     historyItem.querySelector('.buy-btn').addEventListener('click', () => {
                         alert(`Accessing your purchased content: ${product.title}`);
                     });
-
+                    
                     purchaseHistory.appendChild(historyItem);
                 }
             });
         }
-
+        
         // Initiate purchase
         function initiatePurchase(product) {
-            if (!paymentModal || !btcAddress || !paymentAmount || !paymentStatus) {
-                console.error('Payment modal elements missing');
-                return;
-            }
             currentProduct = product;
             btcAddress.textContent = generateBitcoinAddress();
             paymentAmount.textContent = `${product.price} BTC`;
             paymentStatus.innerHTML = '<p>Waiting for payment confirmation...</p>';
             paymentModal.style.display = 'flex';
         }
-
+        
         // Complete payment (simulated)
         function completePayment() {
-            if (!paymentStatus || !confirmPayment || !paymentModal) {
-                console.error('Payment elements missing');
-                return;
-            }
             paymentStatus.innerHTML = '<p class="payment-success">Payment confirmed! Unlocking your content...</p>';
             confirmPayment.disabled = true;
-
+            
             setTimeout(() => {
                 DB.addPurchase(currentUser.username, currentProduct.id);
                 currentUser.balance += currentProduct.price;
-                localStorage.setItem('zivi_currentUser', JSON.stringify(currentUser));
-
+                localStorage.setItem('dzidzi_currentUser', JSON.stringify(currentUser));
+                
                 userBalance.textContent = currentUser.balance.toFixed(8);
                 loadProducts();
                 loadPurchaseHistory();
-
+                
                 paymentModal.style.display = 'none';
                 confirmPayment.disabled = false;
-
+                
                 alert(`Purchase complete! You now have access to: ${currentProduct.title}`);
             }, 2000);
         }
-
+        
         // Generate a random Bitcoin address (simulated)
         function generateBitcoinAddress() {
             const chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
@@ -1038,7 +968,7 @@
             }
             return result;
         }
-
+        
         // Initialize the app when DOM is loaded
         document.addEventListener('DOMContentLoaded', init);
     </script>
