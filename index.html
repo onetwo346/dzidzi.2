@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DZIDZI - Exclusive Digital Marketplace</title>
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --secondary: #a29bfe;
+            --dark: #2d3436;
+            --light: #f5f6fa;
+            --success: #00b894;
+            --warning: #fdcb6e;
+            --error: #d63031;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .auth-buttons button {
+            background-color: white;
+            color: var(--primary);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .auth-buttons button:hover {
+            background-color: var(--secondary);
+            color: white;
+        }
+        
+        .page {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .active {
+            display: block;
+        }
+        
+        /* Login/Signup Page */
+        .auth-container {
+            max-width: 500px;
+            margin: 50px auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .auth-form h2 {
+            margin-bottom: 20px;
+            color: var(--primary);
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .auth-form button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .auth-form button:hover {
+            background-color: var(--secondary);
+        }
+        
+        .auth-switch {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .auth-switch a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .auth-switch a:hover {
+            text-decoration: underline;
+        }
+        
+        .error-message {
+            color: var(--error);
+            margin-top: 5px;
+            font-size: 14px;
+        }
+        
+        /* User Portal */
+        .portal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+        
+        .logout-btn {
+            background-color: var(--error);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .product-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .product-image {
+            height: 200px;
+            background-color: #eee;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .locked-content {
+            filter: blur(8px);
+            user-select: none;
+        }
+        
+        .product-info {
+            padding: 20px;
+        }
+        
+        .product-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .product-price {
+            color: var(--primary);
+            font-weight: bold;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .product-description {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .buy-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .buy-btn:hover {
+            background-color: var(--secondary);
+        }
+        
+        .owned-badge {
+            background-color: var(--success);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        
+        /* Payment Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            animation: modalFadeIn 0.3s ease;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .payment-info {
+            margin-bottom: 20px;
+        }
+        
+        .payment-address {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            word-break: break-all;
+            margin: 10px 0;
+        }
+        
+        .payment-amount {
+            font-weight: bold;
+            font-size: 18px;
+            color: var(--primary);
+        }
+        
+        .payment-status {
+            text-align: center;
+            margin: 20px 0;
+            font-weight: 600;
+        }
+        
+        .payment-success {
+            color: var(--success);
+        }
+        
+        .payment-error {
+            color: var(--error);
+        }
+        
+        /* Purchase History */
+        .history-section {
+            margin-top: 50px;
+        }
+        
+        .section-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+        
+        .history-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .products-grid, .history-items {
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            }
+            
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .auth-buttons {
+                margin-top: 15px;
+            }
+            
+            .portal-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .logout-btn {
+                margin-top: 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .products-grid, .history-items {
+                grid-template-columns: 1fr;
+            }
+            
+            .auth-container {
+                padding: 20px;
+                margin: 20px auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="logo">DZIDZI</div>
+            <div class="auth-buttons">
+                <button id="showLogin">Login</button>
+                <button id="showSignup">Sign Up</button>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- Login/Signup Page -->
+        <div id="authPage" class="page active">
+            <div class="auth-container">
+                <div id="loginForm" class="auth-form">
+                    <h2>Login to Your Account</h2>
+                    <div class="form-group">
+                        <label for="loginUsername">Username</label>
+                        <input type="text" id="loginUsername" placeholder="Enter your username">
+                        <div id="loginUsernameError" class="error-message"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" placeholder="Enter your password">
+                        <div id="loginPasswordError" class="error-message"></div>
+                    </div>
+                    <button id="loginBtn">Login</button>
+                    <div class="auth-switch">
+                        Don't have an account? <a id="switchToSignup">Sign up</a>
+                    </div>
+                </div>
+                
+                <div id="signupForm" class="auth-form" style="display: none;">
+                    <h2>Create New Account</h2>
+                    <div class="form-group">
+                        <label for="signupUsername">Username</label>
+                        <input type="text" id="signupUsername" placeholder="Choose a username">
+                        <div id="signupUsernameError" class="error-message"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupPassword">Password</label>
+                        <input type="password" id="signupPassword" placeholder="Create a password">
+                        <div id="signupPasswordError" class="error-message"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input type="password" id="confirmPassword" placeholder="Confirm your password">
+                        <div id="confirmPasswordError" class="error-message"></div>
+                    </div>
+                    <button id="signupBtn">Sign Up</button>
+                    <div class="auth-switch">
+                        Already have an account? <a id="switchToLogin">Login</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- User Portal -->
+        <div id="portalPage" class="page">
+            <div class="portal-header">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <div>
+                        <h2 id="welcomeMessage">Welcome, User</h2>
+                        <p>Your balance: <span id="userBalance">0</span> BTC</p>
+                    </div>
+                </div>
+                <button class="logout-btn" id="logoutBtn">Logout</button>
+            </div>
+            
+            <h2 class="section-title">Exclusive Products</h2>
+            <div class="products-grid" id="productsGrid">
+                <!-- Products will be loaded here dynamically -->
+            </div>
+            
+            <div class="history-section">
+                <h2 class="section-title">Your Purchase History</h2>
+                <div class="history-items" id="purchaseHistory">
+                    <!-- Purchase history will be loaded here dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Payment Modal -->
+    <div class="modal" id="paymentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Complete Your Purchase</h3>
+                <button class="close-modal" id="closeModal">×</button>
+            </div>
+            <div class="payment-info">
+                <p>Please send the exact amount to the following Bitcoin address:</p>
+                <div class="payment-address" id="btcAddress">bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh</div>
+                <p>Amount: <span class="payment-amount" id="paymentAmount">0.05 BTC</span></p>
+            </div>
+            <div class="payment-status" id="paymentStatus">
+                <p>Waiting for payment confirmation...</p>
+            </div>
+            <button id="confirmPayment" class="buy-btn">I've Sent the Payment</button>
+        </div>
+    </div>
+    
+    <script>
+        // Database simulation using localStorage
+        const DB = {
+            users: (() => {
+                try {
+                    const stored = localStorage.getItem('zivi_users');
+                    return stored ? JSON.parse(stored) : [];
+                } catch (e) {
+                    console.error('Error loading users:', e);
+                    return [];
+                }
+            })(),
+            products: [
+                {
+                    id: 'prod1',
+                    title: 'Premium Digital Art Collection',
+                    description: 'Exclusive high-resolution digital artwork from renowned artists. Includes 50 unique pieces with commercial use license.',
+                    price: 0.05,
+                    image: 'https://source.unsplash.com/random/600x400/?digital-art'
+                },
+                {
+                    id: 'prod2',
+                    title: 'Advanced Coding Course',
+                    description: 'Master modern web development with this comprehensive course covering React, Node.js, and blockchain integration.',
+                    price: 0.1,
+                    image: 'https://source.unsplash.com/random/600x400/?coding'
+                },
+                {
+                    id: 'prod3',
+                    title: 'Exclusive Music Pack',
+                    description: 'Royalty-free music tracks for your projects. 20 high-quality tracks in various genres with unlimited usage.',
+                    price: 0.03,
+                    image: 'https://source.unsplash.com/random/600x400/?music'
+                },
+                {
+                    id: 'prod4',
+                    title: 'E-book Bundle',
+                    description: 'Collection of 10 best-selling e-books on entrepreneurship, productivity, and personal development.',
+                    price: 0.02,
+                    image: 'https://source.unsplash.com/random/600x400/?books'
+                },
+                {
+                    id: 'prod5',
+                    title: '3D Model Assets',
+                    description: 'Premium 3D models for game development and animation. Includes characters, environments, and props.',
+                    price: 0.15,
+                    image: 'https://source.unsplash.com/random/600x400/?3d-model'
+                },
+                {
+                    id: 'prod6',
+                    title: 'Photography Presets',
+                    description: 'Professional Lightroom presets to enhance your photography workflow. 50 unique presets for various styles.',
+                    price: 0.04,
+                    image: 'https://source.unsplash.com/random/600x400/?photography'
+                }
+            ],
+            
+            saveUsers: function() {
+                try {
+                    localStorage.setItem('zivi_users', JSON.stringify(this.users));
+                } catch (e) {
+                    console.error('Error saving users:', e);
+                }
+            },
+            
+            findUser: function(username) {
+                return this.users.find(user => user.username === username);
+            },
+            
+            createUser: function(username, password) {
+                const newUser = {
+                    username,
+                    password, // In a real app, never store plain text passwords!
+                    balance: 0,
+                    purchases: [],
+                    createdAt: new Date().toISOString()
+                };
+                this.users.push(newUser);
+                this.saveUsers();
+                return newUser;
+            },
+            
+            addPurchase: function(username, productId) {
+                const user = this.findUser(username);
+                if (user && !user.purchases.includes(productId)) {
+                    user.purchases.push(productId);
+                    this.saveUsers();
+                    return true;
+                }
+                return false;
+            },
+            
+            getUserPurchases: function(username) {
+                const user = this.findUser(username);
+                return user ? user.purchases : [];
+            }
+        };
+        
+        // App State
+        let currentUser = null;
+        
+        // DOM Elements
+        const authPage = document.getElementById('authPage');
+        const portalPage = document.getElementById('portalPage');
+        const loginForm = document.getElementById('loginForm');
+        const signupForm = document.getElementById('signupForm');
+        const showLogin = document.getElementById('showLogin');
+        const showSignup = document.getElementById('showSignup');
+        const switchToLogin = document.getElementById('switchToLogin');
+        const switchToSignup = document.getElementById('switchToSignup');
+        const loginBtn = document.getElementById('loginBtn');
+        const signupBtn = document.getElementById('signupBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const productsGrid = document.getElementById('productsGrid');
+        const purchaseHistory = document.getElementById('purchaseHistory');
+        const welcomeMessage = document.getElementById('welcomeMessage');
+        const userAvatar = document.getElementById('userAvatar');
+        const userBalance = document.getElementById('userBalance');
+        const paymentModal = document.getElementById('paymentModal');
+        const closeModal = document.getElementById('closeModal');
+        const confirmPayment = document.getElementById('confirmPayment');
+        const btcAddress = document.getElementById('btcAddress');
+        const paymentAmount = document.getElementById('paymentAmount');
+        const paymentStatus = document.getElementById('paymentStatus');
+        
+        // Form inputs
+        const loginUsername = document.getElementById('loginUsername');
+        const loginPassword = document.getElementById('loginPassword');
+        const signupUsername = document.getElementById('signupUsername');
+        const signupPassword = document.getElementById('signupPassword');
+        const confirmPassword = document.getElementById('confirmPassword');
+        
+        // Error messages
+        const loginUsernameError = document.getElementById('loginUsernameError');
+        const loginPasswordError = document.getElementById('loginPasswordError');
+        const signupUsernameError = document.getElementById('signupUsernameError');
+        const signupPasswordError = document.getElementById('signupPasswordError');
+        const confirmPasswordError = document.getElementById('confirmPasswordError');
+        
+        // Current product being purchased
+        let currentProduct = null;
+        
+        // Initialize the app
+        function init() {
+            // Check if user is already logged in
+            try {
+                const storedUser = localStorage.getItem('zivi_currentUser');
+                if (storedUser) {
+                    currentUser = JSON.parse(storedUser);
+                    showPortal();
+                }
+            } catch (e) {
+                console.error('Error loading current user:', e);
+            }
+            
+            // Event listeners
+            showLogin.addEventListener('click', () => {
+                showLoginForm();
+                authPage.classList.add('active');
+                portalPage.classList.remove('active');
+            });
+            
+            showSignup.addEventListener('click', () => {
+                showSignupForm();
+                authPage.classList.add('active');
+                portalPage.classList.remove('active');
+            });
+            
+            switchToLogin.addEventListener('click', showLoginForm);
+            switchToSignup.addEventListener('click', showSignupForm);
+            
+            loginBtn.addEventListener('click', handleLogin);
+            signupBtn.addEventListener('click', handleSignup);
+            logoutBtn.addEventListener('click', handleLogout);
+            
+            closeModal.addEventListener('click', () => {
+                paymentModal.style.display = 'none';
+            });
+            
+            confirmPayment.addEventListener('click', completePayment);
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target === paymentModal) {
+                    paymentModal.style.display = 'none';
+                }
+            });
+        }
+        
+        // Show login form
+        function showLoginForm() {
+            loginForm.style.display = 'block';
+            signupForm.style.display = 'none';
+            clearErrors();
+            clearFormInputs();
+        }
+        
+        // Show signup form
+        function showSignupForm() {
+            loginForm.style.display = 'none';
+            signupForm.style.display = 'block';
+            clearErrors();
+            clearFormInputs();
+        }
+        
+        // Clear all form inputs
+        function clearFormInputs() {
+            loginUsername.value = '';
+            loginPassword.value = '';
+            signupUsername.value = '';
+            signupPassword.value = '';
+            confirmPassword.value = '';
+        }
+        
+        // Clear all error messages
+        function clearErrors() {
+            loginUsernameError.textContent = '';
+            loginPasswordError.textContent = '';
+            signupUsernameError.textContent = '';
+            signupPasswordError.textContent = '';
+            confirmPasswordError.textContent = '';
+        }
+        
+        // Handle login
+        function handleLogin() {
+            clearErrors();
+            
+            const username = loginUsername.value.trim();
+            const password = loginPassword.value.trim();
+            
+            console.log('Attempting login with:', { username, password });
+            
+            let isValid = true;
+            if (!username) {
+                loginUsernameError.textContent = 'Username is required';
+                isValid = false;
+            }
+            if (!password) {
+                loginPasswordError.textContent = 'Password is required';
+                isValid = false;
+            }
+            if (!isValid) return;
+            
+            const user = DB.findUser(username);
+            console.log('Found user:', user);
+            
+            if (!user) {
+                loginUsernameError.textContent = 'User not found';
+                return;
+            }
+            
+            console.log('Comparing passwords:', { stored: user.password, entered: password });
+            if (user.password !== password) {
+                loginPasswordError.textContent = 'Incorrect password';
+                return;
+            }
+            
+            try {
+                currentUser = user;
+                localStorage.setItem('zivi_currentUser', JSON.stringify(user));
+                console.log('Login successful, navigating to portal');
+                showPortal();
+            } catch (e) {
+                console.error('Error during login:', e);
+                loginUsernameError.textContent = 'An error occurred. Please try again.';
+            }
+        }
+        
+        // Handle signup
+        function handleSignup() {
+            clearErrors();
+            
+            const username = signupUsername.value.trim();
+            const password = signupPassword.value.trim();
+            const confirm = confirmPassword.value.trim();
+            
+            let isValid = true;
+            
+            if (!username) {
+                signupUsernameError.textContent = 'Username is required';
+                isValid = false;
+            } else if (username.length < 4) {
+                signupUsernameError.textContent = 'Username must be at least 4 characters';
+                isValid = false;
+            } else if (DB.findUser(username)) {
+                signupUsernameError.textContent = 'Username already taken';
+                isValid = false;
+            }
+            
+            if (!password) {
+                signupPasswordError.textContent = 'Password is required';
+                isValid = false;
+            } else if (password.length < 6) {
+                signupPasswordError.textContent = 'Password must be at least 6 characters';
+                isValid = false;
+            }
+            
+            if (!confirm) {
+                confirmPasswordError.textContent = 'Please confirm your password';
+                isValid = false;
+            } else if (password !== confirm) {
+                confirmPasswordError.textContent = 'Passwords do not match';
+                isValid = false;
+            }
+            
+            if (!isValid) return;
+            
+            try {
+                const user = DB.createUser(username, password);
+                currentUser = user;
+                localStorage.setItem('zivi_currentUser', JSON.stringify(user));
+                showPortal();
+            } catch (e) {
+                console.error('Error during signup:', e);
+                signupUsernameError.textContent = 'An error occurred. Please try again.';
+            }
+        }
+        
+        // Handle logout
+        function handleLogout() {
+            currentUser = null;
+            localStorage.removeItem('zivi_currentUser');
+            authPage.classList.add('active');
+            portalPage.classList.remove('active');
+            showLoginForm();
+        }
+        
+        // Show portal page
+        function showPortal() {
+            console.log('Showing portal for user:', currentUser);
+            authPage.classList.remove('active');
+            portalPage.classList.add('active');
+            
+            welcomeMessage.textContent = `Welcome, ${currentUser.username}`;
+            userAvatar.textContent = currentUser.username.charAt(0).toUpperCase();
+            userBalance.textContent = currentUser.balance.toFixed(8);
+            
+            loadProducts();
+            loadPurchaseHistory();
+        }
+        
+        // Load products
+        function loadProducts() {
+            productsGrid.innerHTML = '';
+            
+            const userPurchases = DB.getUserPurchases(currentUser.username);
+            
+            DB.products.forEach(product => {
+                const isPurchased = userPurchases.includes(product.id);
+                
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.innerHTML = `
+                    <div class="product-image">
+                        <img src="${product.image}" alt="${product.title}" ${!isPurchased ? 'class="locked-content"' : ''}>
+                    </div>
+                    <div class="product-info">
+                        ${isPurchased ? '<span class="owned-badge">OWNED</span>' : ''}
+                        <h3 class="product-title">${product.title}</h3>
+                        <div class="product-price">${product.price} BTC</div>
+                        <p class="product-description">${product.description}</p>
+                        ${!isPurchased ? 
+                            `<button class="buy-btn" data-id="${product.id}">Buy Now</button>` : 
+                            `<button class="buy-btn" style="background-color: var(--success);">Access Content</button>`}
+                    </div>
+                `;
+                
+                productsGrid.appendChild(productCard);
+                
+                if (!isPurchased) {
+                    productCard.querySelector('.buy-btn').addEventListener('click', () => {
+                        initiatePurchase(product);
+                    });
+                } else {
+                    productCard.querySelector('.buy-btn').addEventListener('click', () => {
+                        alert(`You now have full access to: ${product.title}`);
+                    });
+                }
+            });
+        }
+        
+        // Load purchase history
+        function loadPurchaseHistory() {
+            purchaseHistory.innerHTML = '';
+            
+            const userPurchases = DB.getUserPurchases(currentUser.username);
+            
+            if (userPurchases.length === 0) {
+                purchaseHistory.innerHTML = '<p>You have no purchases yet.</p>';
+                return;
+            }
+            
+            userPurchases.forEach(productId => {
+                const product = DB.products.find(p => p.id === productId);
+                if (product) {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'product-card';
+                    historyItem.innerHTML = `
+                        <div class="product-image">
+                            <img src="${product.image}" alt="${product.title}">
+                        </div>
+                        <div class="product-info">
+                            <span class="owned-badge">PURCHASED</span>
+                            <h3 class="product-title">${product.title}</h3>
+                            <button class="buy-btn" style="background-color: var(--success);">Access Again</button>
+                        </div>
+                    `;
+                    
+                    historyItem.querySelector('.buy-btn').addEventListener('click', () => {
+                        alert(`Accessing your purchased content: ${product.title}`);
+                    });
+                    
+                    purchaseHistory.appendChild(historyItem);
+                }
+            });
+        }
+        
+        // Initiate purchase
+        function initiatePurchase(product) {
+            currentProduct = product;
+            btcAddress.textContent = generateBitcoinAddress();
+            paymentAmount.textContent = `${product.price} BTC`;
+            paymentStatus.innerHTML = '<p>Waiting for payment confirmation...</p>';
+            paymentModal.style.display = 'flex';
+        }
+        
+        // Complete payment (simulated)
+        function completePayment() {
+            paymentStatus.innerHTML = '<p class="payment-success">Payment confirmed! Unlocking your content...</p>';
+            confirmPayment.disabled = true;
+            
+            setTimeout(() => {
+                DB.addPurchase(currentUser.username, currentProduct.id);
+                currentUser.balance += currentProduct.price;
+                localStorage.setItem('zivi_currentUser', JSON.stringify(currentUser));
+                
+                userBalance.textContent = currentUser.balance.toFixed(8);
+                loadProducts();
+                loadPurchaseHistory();
+                
+                paymentModal.style.display = 'none';
+                confirmPayment.disabled = false;
+                
+                alert(`Purchase complete! You now have access to: ${currentProduct.title}`);
+            }, 2000);
+        }
+        
+        // Generate a random Bitcoin address (simulated)
+        function generateBitcoinAddress() {
+            const chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+            let result = 'bc1q';
+            for (let i = 0; i < 32; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+        
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
